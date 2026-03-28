@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Marine Calc</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#00E5FF">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MarineCalc">
+<link rel="apple-touch-icon" href="icon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080D18;--card:#0f1724;--border:rgba(255,255,255,0.07);--cyan:#00E5FF;--orange:#FF6B35;--green:#10B981;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:var(--bg);min-height:100dvh;font-family:'Rajdhani',sans-serif;color:#fff;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,229,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,0.02) 1px,transparent 1px);background-size:36px 36px;pointer-events:none;}
+.app{max-width:480px;margin:0 auto;padding:16px 16px 60px;position:relative;z-index:1;}
+header{display:flex;align-items:center;gap:12px;padding:16px 0 24px;}
+.logo{font-size:28px;}
+.htext h1{font-family:'Share Tech Mono',monospace;font-size:15px;letter-spacing:3px;color:var(--cyan);}
+.htext p{font-size:11px;color:rgba(255,255,255,0.3);}
+.sec-title{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;color:rgba(255,255,255,0.3);margin-bottom:10px;padding-left:2px;}
+.card{background:var(--card);border-radius:20px;border:1px solid var(--border);padding:18px;margin-bottom:20px;}
+.tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:18px;}
+.tab{padding:9px 4px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,0.03);font-size:12px;font-weight:700;letter-spacing:0.5px;text-align:center;cursor:pointer;transition:all 0.2s;color:rgba(255,255,255,0.4);}
+.tab.active{background:rgba(0,229,255,0.1);border-color:rgba(0,229,255,0.4);color:var(--cyan);}
+.tab2{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:18px;}
+.input-group{margin-bottom:14px;}
+.input-label{font-size:11px;letter-spacing:1.5px;color:rgba(255,255,255,0.35);font-family:'Share Tech Mono',monospace;margin-bottom:6px;}
+.input-row{display:flex;gap:8px;align-items:center;}
+input[type=number]{flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#fff;padding:12px 14px;font-family:'Share Tech Mono',monospace;font-size:20px;outline:none;-moz-appearance:textfield;width:100%;}
+input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;}
+input:focus{border-color:var(--cyan);}
+input::placeholder{color:rgba(255,255,255,0.15);}
+select{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:#fff;padding:12px 10px;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;outline:none;cursor:pointer;-webkit-appearance:none;min-width:72px;text-align:center;}
+select option{background:#1a2235;}
+.time-row{display:flex;gap:6px;align-items:center;}
+.time-box{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.time-box input{text-align:center;padding:12px 6px;font-size:18px;}
+.time-box span{font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:1px;}
+.time-sep{font-size:22px;color:rgba(255,255,255,0.2);}
+.calc-btn{width:100%;padding:14px;border-radius:12px;border:none;background:linear-gradient(135deg,#00bcd4,#00E5FF);color:#000;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;cursor:pointer;margin-top:6px;box-shadow:0 4px 20px rgba(0,229,255,0.25);}
+.calc-btn:active{transform:scale(0.97);}
+.result-box{margin-top:14px;background:rgba(0,229,255,0.06);border:1px solid rgba(0,229,255,0.2);border-radius:14px;padding:16px 18px;display:none;}
+.result-box.show{display:block;}
+.result-label{font-size:11px;font-family:'Share Tech Mono',monospace;color:rgba(255,255,255,0.35);letter-spacing:1.5px;margin-bottom:6px;}
+.result-value{font-family:'Share Tech Mono',monospace;font-size:28px;font-weight:bold;color:var(--cyan);}
+.result-unit{font-size:14px;color:rgba(255,255,255,0.4);margin-left:4px;}
+.result-extra{margin-top:8px;font-size:13px;color:rgba(255,255,255,0.4);font-family:'Share Tech Mono',monospace;}
+.compass-wrap{display:flex;flex-direction:column;align-items:center;gap:20px;}
+#compass-canvas{width:200px;height:200px;display:block;}
+.bearing-inputs{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.bearing-box{display:flex;flex-direction:column;gap:6px;}
+.bearing-box label{font-size:11px;font-family:'Share Tech Mono',monospace;letter-spacing:1.5px;color:rgba(255,255,255,0.35);}
+.bearing-input-wrap{position:relative;}
+.bearing-input-wrap input{width:100%;text-align:center;font-size:24px;padding:14px 8px;}
+.deg-sym{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-family:'Share Tech Mono',monospace;font-size:16px;color:rgba(255,255,255,0.3);}
+.compass-info{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;}
+.compass-info-box{background:rgba(255,255,255,0.04);border-radius:12px;padding:10px 14px;border:1px solid var(--border);text-align:center;}
+.ci-label{font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:1px;}
+.ci-value{font-family:'Share Tech Mono',monospace;font-size:18px;color:#fff;margin-top:4px;}
+.ci-dir{font-size:11px;color:var(--green);}
+.coord-label{font-size:11px;font-family:'Share Tech Mono',monospace;letter-spacing:1.5px;color:rgba(255,255,255,0.35);margin-bottom:6px;}
+.dms-parts{display:flex;gap:4px;}
+.dms-part{display:flex;flex-direction:column;align-items:center;flex:1;}
+.dms-part input{width:100%;text-align:center;padding:10px 4px;font-size:16px;}
+.dms-part span{font-size:10px;color:rgba(255,255,255,0.3);font-family:'Share Tech Mono',monospace;margin-top:4px;letter-spacing:1px;}
+.coord-row{display:flex;gap:6px;margin-bottom:14px;align-items:flex-end;}
+.coord-group{flex:1;}
+.hem-sel{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:#fff;padding:12px 8px;font-size:15px;font-weight:600;outline:none;cursor:pointer;-webkit-appearance:none;min-width:52px;text-align:center;font-family:'Rajdhani',sans-serif;}
+.dms-rg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
+.dms-rb{background:rgba(0,229,255,0.05);border:1px solid rgba(0,229,255,0.15);border-radius:12px;padding:12px 14px;}
+.dms-rb.gb{background:rgba(16,185,129,0.05);border-color:rgba(16,185,129,0.2);}
+.dms-rl{font-size:10px;font-family:'Share Tech Mono',monospace;letter-spacing:1.5px;color:rgba(255,255,255,0.3);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;}
+.dms-rv{font-family:'Share Tech Mono',monospace;font-size:14px;color:#00E5FF;word-break:break-all;line-height:1.6;}
+.dms-rb.gb .dms-rv{color:#10B981;}
+.cpb{background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.25);font-size:12px;padding:0;}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a2235;border:1px solid rgba(255,255,255,0.1);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;opacity:0;pointer-events:none;transition:all 0.3s;z-index:999;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo">⚓</div>
+    <div class="htext">
+      <h1>MARINE CALC</h1>
+      <p>Speed · Distance · Time · Bearing · Coordinates</p>
+    </div>
+  </header>
+
+  <div class="sec-title">NAVIGATION CALCULATOR</div>
+  <div class="card">
+    <div class="tabs">
+      <div class="tab active" onclick="setMode('distance')">📍 Distance</div>
+      <div class="tab" onclick="setMode('speed')">🚢 Speed</div>
+      <div class="tab" onclick="setMode('time')">⏱ Time</div>
+    </div>
+    <div class="input-group" id="grp-speed">
+      <div class="input-label">SPEED</div>
+      <div class="input-row">
+        <input type="number" id="inp-speed" placeholder="0" oninput="liveCalc()" min="0"/>
+        <select id="sel-speed" onchange="liveCalc()">
+          <option value="kn">kn</option><option value="kt">kt</option>
+          <option value="kmh">km/h</option><option value="mph">mph</option><option value="ms">m/s</option>
+        </select>
+      </div>
+    </div>
+    <div class="input-group" id="grp-dist">
+      <div class="input-label">DISTANCE</div>
+      <div class="input-row">
+        <input type="number" id="inp-dist" placeholder="0" oninput="liveCalc()" min="0"/>
+        <select id="sel-dist" onchange="liveCalc()">
+          <option value="nm">nm</option><option value="km">km</option>
+          <option value="mi">mi</option><option value="m">m</option>
+        </select>
+      </div>
+    </div>
+    <div class="input-group" id="grp-time">
+      <div class="input-label">TIME</div>
+      <div class="time-row">
+        <div class="time-box"><input type="number" id="inp-h" placeholder="0" min="0" oninput="liveCalc()"/><span>HRS</span></div>
+        <div class="time-sep">:</div>
+        <div class="time-box"><input type="number" id="inp-m" placeholder="0" min="0" max="59" oninput="liveCalc()"/><span>MIN</span></div>
+        <div class="time-sep">:</div>
+        <div class="time-box"><input type="number" id="inp-s" placeholder="0" min="0" max="59" oninput="liveCalc()"/><span>SEC</span></div>
+      </div>
+    </div>
+    <button class="calc-btn" onclick="calculate()">CALCULATE</button>
+    <div class="result-box" id="sdt-result">
+      <div class="result-label" id="res-label">RESULT</div>
+      <div><span class="result-value" id="res-val">—</span><span class="result-unit" id="res-unit"></span></div>
+      <div class="result-extra" id="res-extra"></div>
+    </div>
+  </div>
+
+  <div class="sec-title">COMPASS & BEARING</div>
+  <div class="card">
+    <div class="compass-wrap">
+      <canvas id="compass-canvas" width="200" height="200"></canvas>
+      <div class="bearing-inputs">
+        <div class="bearing-box">
+          <label>BEARING</label>
+          <div class="bearing-input-wrap">
+            <input type="number" id="inp-bearing" placeholder="090" min="0" max="359" oninput="onBearingInput()"/>
+            <span class="deg-sym">°</span>
+          </div>
+        </div>
+        <div class="bearing-box">
+          <label>RECIPROCAL</label>
+          <div class="bearing-input-wrap">
+            <input type="number" id="inp-recip" placeholder="270" min="0" max="359" oninput="onRecipInput()" style="color:var(--green);"/>
+            <span class="deg-sym">°</span>
+          </div>
+        </div>
+      </div>
+      <div class="compass-info">
+        <div class="compass-info-box"><div class="ci-label">BEARING</div><div class="ci-value" id="ci-bearing">—</div><div class="ci-dir" id="ci-bearing-dir">—</div></div>
+        <div class="compass-info-box"><div class="ci-label">RECIPROCAL</div><div class="ci-value" id="ci-recip">—</div><div class="ci-dir" id="ci-recip-dir">—</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-title">COORDINATES CONVERTER</div>
+  <div class="card">
+    <div class="tab2">
+      <div class="tab active" id="tab-dms2dd" onclick="setDmsMode('dms2dd')">DMS → DD</div>
+      <div class="tab" id="tab-dd2dms" onclick="setDmsMode('dd2dms')">DD → DMS</div>
+    </div>
+    <div id="panel-dms2dd">
+      <div class="coord-label">LATITUDE</div>
+      <div class="coord-row">
+        <div class="coord-group"><div class="dms-parts">
+          <div class="dms-part"><input type="number" id="lat-d" placeholder="0" min="0" max="90" oninput="dmsConvert()"/><span>DEG °</span></div>
+          <div class="dms-part"><input type="number" id="lat-m" placeholder="0" min="0" max="59" oninput="dmsConvert()"/><span>MIN '</span></div>
+          <div class="dms-part"><input type="number" id="lat-s" placeholder="0" min="0" step="0.1" oninput="dmsConvert()"/><span>SEC "</span></div>
+        </div></div>
+        <select class="hem-sel" id="lat-hem" onchange="dmsConvert()"><option value="N">N</option><option value="S">S</option></select>
+      </div>
+      <div class="coord-label">LONGITUDE</div>
+      <div class="coord-row">
+        <div class="coord-group"><div class="dms-parts">
+          <div class="dms-part"><input type="number" id="lon-d" placeholder="0" min="0" max="180" oninput="dmsConvert()"/><span>DEG °</span></div>
+          <div class="dms-part"><input type="number" id="lon-m" placeholder="0" min="0" max="59" oninput="dmsConvert()"/><span>MIN '</span></div>
+          <div class="dms-part"><input type="number" id="lon-s" placeholder="0" min="0" step="0.1" oninput="dmsConvert()"/><span>SEC "</span></div>
+        </div></div>
+        <select class="hem-sel" id="lon-hem" onchange="dmsConvert()"><option value="E">E</option><option value="W">W</option></select>
+      </div>
+      <div class="dms-rg" id="dms2dd-result" style="display:none">
+        <div class="dms-rb"><div class="dms-rl">LAT (DD) <button class="cpb" onclick="copyTxt('dd-lat-val')">⎘</button></div><div class="dms-rv" id="dd-lat-val">—</div></div>
+        <div class="dms-rb"><div class="dms-rl">LON (DD) <button class="cpb" onclick="copyTxt('dd-lon-val')">⎘</button></div><div class="dms-rv" id="dd-lon-val">—</div></div>
+        <div class="dms-rb gb" style="grid-column:span 2"><div class="dms-rl">FULL COORDINATES <button class="cpb" onclick="copyTxt('dd-full-val')">⎘</button></div><div class="dms-rv" id="dd-full-val">—</div></div>
+      </div>
+    </div>
+    <div id="panel-dd2dms" style="display:none">
+      <div class="coord-label">LATITUDE (DD)</div>
+      <div class="coord-row"><input type="number" id="dd-lat" placeholder="25.276987" step="0.000001" oninput="ddConvert()" style="padding:12px 14px;font-size:18px;font-family:'Share Tech Mono',monospace;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#fff;outline:none;width:100%;"/></div>
+      <div class="coord-label">LONGITUDE (DD)</div>
+      <div class="coord-row"><input type="number" id="dd-lon" placeholder="51.520008" step="0.000001" oninput="ddConvert()" style="padding:12px 14px;font-size:18px;font-family:'Share Tech Mono',monospace;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#fff;outline:none;width:100%;"/></div>
+      <div class="dms-rg" id="dd2dms-result" style="display:none">
+        <div class="dms-rb"><div class="dms-rl">LAT (DMS) <button class="cpb" onclick="copyTxt('dms-lat-val')">⎘</button></div><div class="dms-rv" id="dms-lat-val">—</div></div>
+        <div class="dms-rb"><div class="dms-rl">LON (DMS) <button class="cpb" onclick="copyTxt('dms-lon-val')">⎘</button></div><div class="dms-rv" id="dms-lon-val">—</div></div>
+        <div class="dms-rb gb" style="grid-column:span 2"><div class="dms-rl">FULL COORDINATES <button class="cpb" onclick="copyTxt('dms-full-val')">⎘</button></div><div class="dms-rv" id="dms-full-val">—</div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+let mode='distance';
+function setMode(m){
+  mode=m;
+  document.querySelectorAll('.tabs .tab').forEach((t,i)=>{t.classList.toggle('active',['distance','speed','time'][i]===m);});
+  document.getElementById('grp-speed').style.display=m==='speed'?'none':'';
+  document.getElementById('grp-dist').style.display=m==='distance'?'none':'';
+  document.getElementById('grp-time').style.display=m==='time'?'none':'';
+  document.getElementById('sdt-result').classList.remove('show');
+}
+function speedToKnots(v,u){if(u==='kn'||u==='kt')return v;if(u==='kmh')return v/1.852;if(u==='mph')return v/1.15078;if(u==='ms')return v/0.514444;return v;}
+function knotsToUnit(v,u){if(u==='kn'||u==='kt')return v;if(u==='kmh')return v*1.852;if(u==='mph')return v*1.15078;if(u==='ms')return v*0.514444;return v;}
+function distToNm(v,u){if(u==='nm')return v;if(u==='km')return v/1.852;if(u==='mi')return v/1.15078;if(u==='m')return v/1852;return v;}
+function nmToDist(v,u){if(u==='nm')return v;if(u==='km')return v*1.852;if(u==='mi')return v*1.15078;if(u==='m')return v*1852;return v;}
+function getTimeSec(){return(parseFloat(document.getElementById('inp-h').value)||0)*3600+(parseFloat(document.getElementById('inp-m').value)||0)*60+(parseFloat(document.getElementById('inp-s').value)||0);}
+function fmtTime(s){return Math.floor(s/3600)+'h '+Math.floor((s%3600)/60)+'m '+Math.round(s%60)+'s';}
+function fmt(n,d=3){if(!isFinite(n)||isNaN(n))return'—';return parseFloat(n.toFixed(d)).toLocaleString();}
+function calculate(){
+  const sR=parseFloat(document.getElementById('inp-speed').value)||0;
+  const dR=parseFloat(document.getElementById('inp-dist').value)||0;
+  const sU=document.getElementById('sel-speed').value;
+  const dU=document.getElementById('sel-dist').value;
+  const tS=getTimeSec();const tH=tS/3600;
+  const sK=speedToKnots(sR,sU);const dN=distToNm(dR,dU);
+  const rb=document.getElementById('sdt-result');
+  if(mode==='distance'){if(!sK||!tH){alert('Enter speed and time');return;}const nm=sK*tH;document.getElementById('res-label').textContent='DISTANCE';document.getElementById('res-val').textContent=fmt(nm);document.getElementById('res-unit').textContent='nm';document.getElementById('res-extra').textContent='= '+fmt(nmToDist(nm,'km'))+' km  |  '+fmt(nmToDist(nm,'mi'))+' mi';}
+  else if(mode==='speed'){if(!dN||!tH){alert('Enter distance and time');return;}const kn=dN/tH;document.getElementById('res-label').textContent='SPEED';document.getElementById('res-val').textContent=fmt(knotsToUnit(kn,sU),2);document.getElementById('res-unit').textContent=sU==='kt'?'kt':sU;document.getElementById('res-extra').textContent='= '+fmt(kn,2)+' kn  |  '+fmt(knotsToUnit(kn,'kmh'),2)+' km/h  |  '+fmt(knotsToUnit(kn,'mph'),2)+' mph';}
+  else if(mode==='time'){if(!sK||!dN){alert('Enter speed and distance');return;}const sec=(dN/sK)*3600;document.getElementById('res-label').textContent='TIME';document.getElementById('res-val').textContent=fmtTime(sec);document.getElementById('res-unit').textContent='';document.getElementById('res-extra').textContent='= '+fmt(sec/3600,4)+' hours';}
+  rb.classList.add('show');
+}
+function liveCalc(){
+  const sR=parseFloat(document.getElementById('inp-speed').value);
+  const dR=parseFloat(document.getElementById('inp-dist').value);
+  const tS=getTimeSec();
+  const hS=!isNaN(sR)&&sR>0,hD=!isNaN(dR)&&dR>0,hT=tS>0;
+  if(mode==='distance'&&hS&&hT)calculate();
+  if(mode==='speed'&&hD&&hT)calculate();
+  if(mode==='time'&&hS&&hD)calculate();
+}
+function degToDir(d){return['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'][Math.round(d/22.5)%16];}
+function reciprocal(d){return(d+180)%360;}
+function onBearingInput(){let v=parseFloat(document.getElementById('inp-bearing').value);if(isNaN(v)){drawCompass(null);clearCI();return;}v=((v%360)+360)%360;const r=reciprocal(v);document.getElementById('inp-recip').value=r;updateCI(v,r);drawCompass(v);}
+function onRecipInput(){let v=parseFloat(document.getElementById('inp-recip').value);if(isNaN(v)){drawCompass(null);clearCI();return;}v=((v%360)+360)%360;const b=reciprocal(v);document.getElementById('inp-bearing').value=b;updateCI(b,v);drawCompass(b);}
+function updateCI(b,r){document.getElementById('ci-bearing').textContent=b.toFixed(0).padStart(3,'0')+'°';document.getElementById('ci-bearing-dir').textContent=degToDir(b);document.getElementById('ci-recip').textContent=r.toFixed(0).padStart(3,'0')+'°';document.getElementById('ci-recip-dir').textContent=degToDir(r);}
+function clearCI(){['ci-bearing','ci-recip','ci-bearing-dir','ci-recip-dir'].forEach(id=>{document.getElementById(id).textContent='—';});}
+function drawCompass(bearing){
+  const canvas=document.getElementById('compass-canvas'),ctx=canvas.getContext('2d');
+  const W=200,H=200,cx=100,cy=100,R=82;
+  ctx.clearRect(0,0,W,H);
+  ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);ctx.strokeStyle='rgba(0,229,255,0.12)';ctx.lineWidth=2;ctx.stroke();
+  for(let i=0;i<360;i+=5){
+    const a=(i-90)*Math.PI/180;
+    const major=i%90===0,mid=i%15===0;
+    const tickLen=major?12:mid?8:4;
+    ctx.beginPath();ctx.moveTo(cx+Math.cos(a)*(R-tickLen),cy+Math.sin(a)*(R-tickLen));
+    ctx.lineTo(cx+Math.cos(a)*(R-1),cy+Math.sin(a)*(R-1));
+    ctx.strokeStyle=major?'rgba(0,229,255,0.8)':mid?'rgba(255,255,255,0.4)':'rgba(255,255,255,0.15)';
+    ctx.lineWidth=major?2:mid?1.5:1;ctx.stroke();
+    if(i%15===0){
+      const lr=R-20;
+      const px=cx+Math.cos(a)*lr, py=cy+Math.sin(a)*lr;
+      ctx.save();
+      ctx.translate(px,py);
+      // Keep text always upright - no rotation for bottom half
+      const textAngle = a+Math.PI/2;
+      ctx.rotate(textAngle);
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      if(major){ctx.font='bold 8px monospace';ctx.fillStyle=i===0?'#FF6B35':'#00E5FF';}
+      else{ctx.font='6.5px monospace';ctx.fillStyle='rgba(255,255,255,0.55)';}
+      ctx.fillText(i,0,0);
+      ctx.restore();
+    }
+  }
+  ctx.beginPath();ctx.arc(cx,cy,R*0.52,0,Math.PI*2);ctx.fillStyle='rgba(0,229,255,0.02)';ctx.fill();ctx.strokeStyle='rgba(0,229,255,0.07)';ctx.lineWidth=1;ctx.stroke();
+  if(bearing===null||bearing===undefined){ctx.beginPath();ctx.arc(cx,cy,4,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,0.3)';ctx.fill();return;}
+  const r=reciprocal(bearing);
+  drawArrow(ctx,cx,cy,bearing,R*0.46,'#00E5FF',3);
+  drawArrow(ctx,cx,cy,r,R*0.46,'#10B981',2);
+  ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(cx+Math.cos((bearing-90)*Math.PI/180)*R*0.46,cy+Math.sin((bearing-90)*Math.PI/180)*R*0.46);ctx.lineTo(cx+Math.cos((r-90)*Math.PI/180)*R*0.46,cy+Math.sin((r-90)*Math.PI/180)*R*0.46);ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=1;ctx.stroke();ctx.setLineDash([]);
+  ctx.beginPath();ctx.arc(cx,cy,5,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.beginPath();ctx.arc(cx,cy,3,0,Math.PI*2);ctx.fillStyle='#000';ctx.fill();
+}
+function drawArrow(ctx,cx,cy,deg,len,color,lw){const a=(deg-90)*Math.PI/180,tx=cx+Math.cos(a)*len,ty=cy+Math.sin(a)*len;ctx.shadowColor=color;ctx.shadowBlur=8;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(tx,ty);ctx.strokeStyle=color;ctx.lineWidth=lw;ctx.lineCap='round';ctx.stroke();const hL=10,hA=Math.PI/6;ctx.beginPath();ctx.moveTo(tx,ty);ctx.lineTo(tx-hL*Math.cos(a-hA),ty-hL*Math.sin(a-hA));ctx.moveTo(tx,ty);ctx.lineTo(tx-hL*Math.cos(a+hA),ty-hL*Math.sin(a+hA));ctx.stroke();ctx.shadowBlur=0;}
+let dmsMode='dms2dd';
+function setDmsMode(m){dmsMode=m;document.getElementById('tab-dms2dd').classList.toggle('active',m==='dms2dd');document.getElementById('tab-dd2dms').classList.toggle('active',m==='dd2dms');document.getElementById('panel-dms2dd').style.display=m==='dms2dd'?'':'none';document.getElementById('panel-dd2dms').style.display=m==='dd2dms'?'':'none';}
+function dmsToDD(d,m,s,h){return((h==='S'||h==='W')?-1:1)*(Math.abs(d)+m/60+s/3600);}
+function ddToDMS(dd){const a=Math.abs(dd),d=Math.floor(a),mF=(a-d)*60,m=Math.floor(mF),s=((mF-m)*60).toFixed(2);return{d,m,s};}
+function fmtDMS(d,m,s,h){return d+'° '+m+"' "+s+'" '+h;}
+function dmsConvert(){
+  const lD=parseFloat(document.getElementById('lat-d').value)||0,lM=parseFloat(document.getElementById('lat-m').value)||0,lS=parseFloat(document.getElementById('lat-s').value)||0,lH=document.getElementById('lat-hem').value;
+  const oD=parseFloat(document.getElementById('lon-d').value)||0,oM=parseFloat(document.getElementById('lon-m').value)||0,oS=parseFloat(document.getElementById('lon-s').value)||0,oH=document.getElementById('lon-hem').value;
+  if(!lD&&!lM&&!lS&&!oD&&!oM&&!oS)return;
+  const latDD=dmsToDD(lD,lM,lS,lH),lonDD=dmsToDD(oD,oM,oS,oH);
+  document.getElementById('dd-lat-val').textContent=latDD.toFixed(6)+'°';
+  document.getElementById('dd-lon-val').textContent=lonDD.toFixed(6)+'°';
+  document.getElementById('dd-full-val').textContent=latDD.toFixed(6)+', '+lonDD.toFixed(6);
+  document.getElementById('dms2dd-result').style.display='grid';
+}
+function ddConvert(){
+  const latDD=parseFloat(document.getElementById('dd-lat').value),lonDD=parseFloat(document.getElementById('dd-lon').value);
+  if(isNaN(latDD)||isNaN(lonDD))return;
+  const lH=latDD>=0?'N':'S',oH=lonDD>=0?'E':'W';
+  const lat=ddToDMS(latDD),lon=ddToDMS(lonDD);
+  const lStr=fmtDMS(lat.d,lat.m,lat.s,lH),oStr=fmtDMS(lon.d,lon.m,lon.s,oH);
+  document.getElementById('dms-lat-val').textContent=lStr;
+  document.getElementById('dms-lon-val').textContent=oStr;
+  document.getElementById('dms-full-val').textContent=lStr+'\n'+oStr;
+  document.getElementById('dd2dms-result').style.display='grid';
+}
+function copyTxt(id){navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>showToast('Copied!'));}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1500);}
+setMode('distance');
+drawCompass(null);
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js');});}
+</script>
+</body>
+</html>
